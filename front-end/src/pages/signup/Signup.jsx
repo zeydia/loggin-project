@@ -1,7 +1,7 @@
 import axios from 'axios'
-import { MDBBtn, MDBContainer, MDBInput, MDBInputGroup } from 'mdb-react-ui-kit'
+import { MDBBtn, MDBContainer, MDBInput, MDBInputGroup, MDBNavbar } from 'mdb-react-ui-kit'
 import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 
 const Signup = () => {
 
@@ -43,12 +43,19 @@ const Signup = () => {
 
 
   return (
-    <>
-      <a href='/' className=''>
-        <MDBBtn>HOME</MDBBtn>
-      </a>
+    <div>
 
-      <div className="d-flex justify-content-center align-items-center vh-100">
+      <div className='mb-4'>
+        <MDBNavbar>
+          <MDBContainer className='m-2'>
+            <Link to={"/"}>
+              BACK TO HOME
+            </Link>
+          </MDBContainer>
+        </MDBNavbar>
+      </div>
+
+      <div className="d-flex justify-content-center align-items-center">
         <div className="card p-4" style={{ width: "600px", height: "auto" }}>
           <MDBContainer className="p-3">
             {/* SIGN UP TITLE */}
@@ -134,7 +141,7 @@ const Signup = () => {
           </MDBContainer>
         </div>
       </div>
-    </>
+    </div>
   )
 }
 

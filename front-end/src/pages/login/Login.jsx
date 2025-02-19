@@ -1,6 +1,7 @@
 import React from 'react'
-import { MDBContainer, MDBInput, MDBBtn } from 'mdb-react-ui-kit'
+import { MDBContainer, MDBInput, MDBBtn, MDBNavbar } from 'mdb-react-ui-kit'
 import axios from 'axios'
+import { Link } from 'react-router-dom'
 
 const Login = () => {
 
@@ -31,11 +32,17 @@ const Login = () => {
 
 
   return (
-    <>
-      <a href='/' className=''>
-        <MDBBtn>HOME</MDBBtn>
-      </a>
-      <div className="d-flex justify-content-center align-items-center vh-100">
+    <div>
+      <div className='mb-6'>
+      <MDBNavbar>
+      <MDBContainer className='m-2'>
+        <Link to={"/"}>
+          BACK TO HOME
+        </Link>
+      </MDBContainer>
+    </MDBNavbar>
+      </div>
+      <div className="d-flex justify-content-center align-items-center">
         <div className="card p-4" style={{ width: "400px", height: "auto" }}>
           <MDBContainer className="p-3">
             {/* LOGIN TITLE */}
@@ -67,13 +74,13 @@ const Login = () => {
             </MDBBtn>
 
             <div className="text-center">
-              <p>Not a member? <a href="/signup">Sign up</a></p>
+              <p>Not a member? <Link to={"/signup"} >Sign up</Link></p>
             </div>
 
           </MDBContainer>
         </div>
       </div>
-    </>
+    </div>
   )
 }
 
