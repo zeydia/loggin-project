@@ -18,9 +18,9 @@ const Login = () => {
         setState({ ...state, error: 'Please fill in all fields' })
       }
 
-      const response = await axios.post('', { username, password })
-      console.log()
-      history('/dashboard')
+      const response = await axios.post('http://localhost:8080/auth/login', { username, password })
+      console.log(response)
+      history('/home')
 
     } catch (error) {
       console.error('Login failed:', error.response ? error.response.data : error.message);

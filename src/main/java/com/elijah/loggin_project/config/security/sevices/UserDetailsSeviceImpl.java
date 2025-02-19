@@ -1,4 +1,4 @@
-package com.elijah.loggin_project.security.sevices;
+package com.elijah.loggin_project.config.security.sevices;
 
 import com.elijah.loggin_project.entities.User;
 import com.elijah.loggin_project.repositories.UserRepository;

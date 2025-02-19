@@ -28,8 +28,6 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @NotBlank
-    @NotNull
     private Long userId;
 
     @NotBlank
@@ -37,30 +35,24 @@ public class User {
     @Column(name = "fullname", length = 50)
     private String fullname;
 
-    @NotBlank
-    @NotNull
+
     @Column(name = "username", length = 50)
     private String username;
 
     @Size(max = 50)
     @Email
-    @NotBlank
     @Column(name = "email")
     private String email;
 
-    @NotNull
-    @NotBlank
+
     @JsonIgnore
     @Column(name = "password", length = 50)
     private String password;
 
-    @NotBlank
+
     @Column(name = "mobile", length = 50)
     private String mobile;
 
-    @NotNull
-    @NotBlank
-    @ToString.Exclude
     @JsonBackReference
     @ManyToOne
     @JoinColumn(name = "role_id")
@@ -84,4 +76,6 @@ public class User {
         this.username = username;
         this.password = password;
     }
+
+
 }

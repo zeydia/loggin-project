@@ -26,8 +26,6 @@ public class Role {
 
     @Column(name = "roleName")
     @Enumerated(EnumType.STRING)
-    @NotNull
-    @NotBlank
     private ROLE roleName;
 
     @ToString.Exclude
@@ -48,4 +46,8 @@ public class Role {
     public final int hashCode(){
         return getClass().hashCode();
     }
+
+     public Role(ROLE roleName){
+        this.roleName = roleName;
+     }
 }
