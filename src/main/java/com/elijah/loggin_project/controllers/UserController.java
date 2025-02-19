@@ -29,8 +29,7 @@ public class UserController {
 
     @Autowired
     UserService userService;
-    @Autowired
-    private RoleService roleService;
+
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
@@ -54,29 +53,14 @@ public class UserController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<User> createUser(
-            @RequestParam String fullname,
-            @RequestParam String username,
-            @RequestParam String email,
-            @RequestParam String password,
-            @RequestParam String mobile,
-            @RequestParam String role
+            @RequestParam User user
     ) {
 
-        User requestedUser = userService.getUserByUsername(username);
+        User requestedUser = userService.getUserByUsername(user.getUsername());
         if (requestedUser != null) {
             return ResponseEntity.badRequest().body(null);
         }
         else {
-            User user = new User();
-            user.setUsername(username);
-            user.setPassword(password);
-            user.setFullname(fullname);
-            user.setEmail(email);
-            user.setMobile(mobile);
-
-            Role userRole = roleService.getRoleByName(role.contains("ADMIN") ? ROLE.ROLE_ADMIN : ROLE.ROLE_USER);
-            user.setRole(userRole);
-
             return ResponseEntity.ok(userService.createUser(user));
         }
     }
@@ -94,30 +78,9 @@ public class UserController {
     @ResponseStatus(HttpStatus.CREATED)
     public void updateUser(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @RequestParam String fullname,
-            @RequestParam String username,
-            @RequestParam String email,
-            @RequestParam String password,
-            @RequestParam String mobile
+            @RequestParam User user
     ){
-        User user = userService.getUserByUsername(userDetails.getUsername());
-
-        if (!user.getFullname().equals(fullname)) {
-            user.setFullname(fullname);
-        }
-        else if (!user.getUsername().equals(username)) {
-            user.setUsername(username);
-        }
-        else if (!user.getEmail().equals(email)) {
-            user.setEmail(email);
-        }
-        else if (!user.getPassword().equals(password)) {
-            user.setPassword(password);
-        }
-        else if (!user.getMobile().equals(mobile)) {
-            user.setMobile(mobile);
-        }
-
+        userService.updateUser(user, userDetails);
     }
 
 }

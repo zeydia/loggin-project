@@ -1,7 +1,10 @@
 package com.elijah.loggin_project.services;
 
+import com.elijah.loggin_project.config.security.sevices.UserDetailsImpl;
 import com.elijah.loggin_project.entities.Role;
 import com.elijah.loggin_project.entities.User;
+import com.elijah.loggin_project.enumeration.ROLE;
+import com.elijah.loggin_project.repositories.RoleRepository;
 import com.elijah.loggin_project.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,6 +16,8 @@ public class UserService {
 
     @Autowired
     UserRepository userRepository;
+    @Autowired
+    private RoleRepository roleRepository;
 
     public List<User> getAllUsers() {
         return userRepository.findAll();
@@ -35,11 +40,47 @@ public class UserService {
     }
 
     public User createUser(User user) {
-        return userRepository.save(user);
+        User createdUser = new User();
+        createdUser.setUsername(user.getUsername());
+        createdUser.setPassword("{noop}"+user.getPassword());
+        createdUser.setFullname(user.getFullname());
+        createdUser.setEmail(user.getEmail());
+        createdUser.setMobile(user.getMobile());
+
+        Role userRole = roleRepository.findByRoleName(user.getRole().toString().contains("ADMIN") ? ROLE.ROLE_ADMIN : ROLE.ROLE_USER)
+                .orElse(null);
+        createdUser.setRole(userRole);
+        return userRepository.save(createdUser);
     }
 
     public void deleteUser(User user) {
         userRepository.delete(user);
+    }
+
+    public void updateUser(User user, UserDetailsImpl currentUser) {
+        String username = user.getUsername();
+        String email = user.getEmail();
+        String fullname = user.getFullname();
+        String mobile = user.getMobile();
+        String password = user.getPassword();
+
+        User requestedUser = this.getUserByUsername(currentUser.getUsername());
+
+        if (!requestedUser.getFullname().equals(fullname)) {
+            requestedUser.setFullname(fullname);
+        }
+        else if (!requestedUser.getUsername().equals(username)) {
+            requestedUser.setUsername(username);
+        }
+        else if (!requestedUser.getEmail().equals(email)) {
+            requestedUser.setEmail(email);
+        }
+        else if (!requestedUser.getPassword().equals(password)) {
+            requestedUser.setPassword("{noop}"+password);
+        }
+        else if (!requestedUser.getMobile().equals(mobile)) {
+            requestedUser.setMobile(mobile);
+        }
     }
 
 
