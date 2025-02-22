@@ -1,7 +1,7 @@
 import React from 'react'
 import { MDBContainer, MDBInput, MDBBtn, MDBNavbar } from 'mdb-react-ui-kit'
 import axios from 'axios'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 const Login = () => {
 
@@ -11,6 +11,8 @@ const Login = () => {
     error: ''
   })
 
+  const history = useNavigate();
+
   const handleSubmit = async () => {
     const { username, password } = state
 
@@ -19,13 +21,16 @@ const Login = () => {
         setState({ ...state, error: 'Please fill in all fields' })
       }
 
-      const response = await axios.post('http://localhost:8080/auth/login', { username, password })
+
+      const response1 = await axios.post('http://localhost:8080/api/login', { username, password });
+      const response = await axios.get('http://localhost:8080/api/user');
       console.log(response)
-      history('/home')
+      //console.log(response)
+      //history("/admin")
 
     } catch (error) {
       console.error('Login failed:', error.response ? error.response.data : error.message);
-            setError('Invalid username or password.');
+      setState({ ...state, error: "Nom d'utilisateur ou mot de passe incorrect"});
     }
 
   }
@@ -37,29 +42,27 @@ const Login = () => {
       <MDBNavbar>
       <MDBContainer className='m-2'>
         <Link to={"/"}>
-          BACK TO HOME
+          VERS L'ACCEUIL
         </Link>
       </MDBContainer>
     </MDBNavbar>
       </div>
       <div className="d-flex justify-content-center align-items-center">
-        <div className="card p-4" style={{ width: "400px", height: "auto" }}>
+        <div className="card p-4" style={{ width: "500px", height: "auto" }}>
           <MDBContainer className="p-3">
             {/* LOGIN TITLE */}
-            <h2 className="text-center mb-4">Login</h2>
+            <h2 className="text-center mb-4">Se connecter</h2>
 
             {/* USERNAME */}
-            <MDBInput wrapperClass='mb-3' id='username' label='username' type='text' value={state.username}
+            <MDBInput wrapperClass='mb-3' id='username' label="Nom d'utilisateur" type='text' value={state.username}
               onChange={(e) => {
-                console.log(e.target.id)
                 setState({ ...state, [e.target.id]: e.target.value })
               }}>
             </MDBInput>
 
             {/* PASSWORD */}
-            <MDBInput wrapperClass='mb-3' id='password' label='password' type='password' value={state.password}
+            <MDBInput wrapperClass='mb-3' id='password' label="Mot de passe" type='password' value={state.password}
               onChange={(e) => {
-                console.log(e.target.id)
                 setState({ ...state, [e.target.id]: e.target.value })
               }}>
             </MDBInput>
@@ -70,11 +73,11 @@ const Login = () => {
             {/* SUBMIT */}
             <MDBBtn className='mb-3'
               style={{ height: '40px', width: '100%' }}
-              onClick={handleSubmit}>Login
+              onClick={handleSubmit}>Se connecter
             </MDBBtn>
 
             <div className="text-center">
-              <p>Not a member? <Link to={"/signup"} >Sign up</Link></p>
+              <p>Vous n'avez pas de compte? <Link to={"/signup"} >Créer un compte</Link></p>
             </div>
 
           </MDBContainer>

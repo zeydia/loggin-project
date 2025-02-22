@@ -7,12 +7,15 @@ import com.elijah.loggin_project.enumeration.ROLE;
 import com.elijah.loggin_project.repositories.RoleRepository;
 import com.elijah.loggin_project.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 public class UserService {
+
+    BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
 
     @Autowired
     UserRepository userRepository;
@@ -40,9 +43,18 @@ public class UserService {
     }
 
     public User createUser(User user) {
+        if (userRepository.findByUsername(user.getUsername()).isPresent()) {
+            System.out.println("Username already exists");
+            throw new RuntimeException("User already exists");
+        }
+        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+            System.out.println("Email already exists");
+            throw new RuntimeException("Email already exists");
+        }
+
         User createdUser = new User();
         createdUser.setUsername(user.getUsername());
-        createdUser.setPassword("{noop}"+user.getPassword());
+        createdUser.setPassword(encoder.encode(user.getPassword()));
         createdUser.setFullname(user.getFullname());
         createdUser.setEmail(user.getEmail());
         createdUser.setMobile(user.getMobile());
@@ -57,12 +69,11 @@ public class UserService {
         userRepository.delete(user);
     }
 
-    public void updateUser(User user, UserDetailsImpl currentUser) {
-        String username = user.getUsername();
-        String email = user.getEmail();
-        String fullname = user.getFullname();
-        String mobile = user.getMobile();
-        String password = user.getPassword();
+    public void updateUser(User Updateduser, UserDetailsImpl currentUser) {
+        String username = Updateduser.getUsername();
+        String email = Updateduser.getEmail();
+        String fullname = Updateduser.getFullname();
+        String mobile = Updateduser.getMobile();
 
         User requestedUser = this.getUserByUsername(currentUser.getUsername());
 
@@ -75,12 +86,18 @@ public class UserService {
         else if (!requestedUser.getEmail().equals(email)) {
             requestedUser.setEmail(email);
         }
-        else if (!requestedUser.getPassword().equals(password)) {
-            requestedUser.setPassword("{noop}"+password);
-        }
         else if (!requestedUser.getMobile().equals(mobile)) {
             requestedUser.setMobile(mobile);
         }
+    }
+
+    public void updateUserPassword(User Updateduser, UserDetailsImpl currentUser) {
+        String username = Updateduser.getUsername();
+        String password = Updateduser.getPassword();
+
+        User requestedUser = this.getUserByUsername(currentUser.getUsername());
+        requestedUser.setPassword(encoder.encode(password));
+
     }
 
 

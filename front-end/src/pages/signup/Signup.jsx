@@ -6,37 +6,48 @@ import { useNavigate, Link } from 'react-router-dom'
 const Signup = () => {
 
   const [state, setState] = useState({
-    fullName: '',
+    fullname: '',
     username: '',
     email: '',
     password: '',
     confirmPassword: '',
     mobile: '',
-    role: '',
+    roles: 'ROLE_USER',
     error: ''
   })
   const history = useNavigate()
 
+  const handleChange = (e) => {
+    setState({ ...state, [e.target.id]: e.target.value })
+  }
+
   const handleSubmit = async () => {
 
     try {
-      const { fullName, username, email, password, confirmPassword, mobile, role } = state
+      const { fullname, username, email, password, confirmPassword, mobile, roles } = state
+      const role = { roleName: roles }
 
-      if (fullName == '', username == '', email == '', password == '', confirmPassword == '', mobile == '', role == '') {
-        setState({ ...state, error: 'Please fill all the fields' })
+      if (fullname == '' || username == '' || email == '' || password == '' || confirmPassword == '' || mobile == '' || role == '') {
+        setState({ ...state, error: 'Veuillez remplir tous les champs' })
       }
-
-      if (password !== confirmPassword) {
-        setState({ ...state, error: 'Password and Confirm Password should be same' })
+      else if (password !== confirmPassword) {
+        setState({ ...state, error: "La confirmation de mot de passe n'est pas correcte." })
       }
+      else if ((mobile.search(/[^\d]/g)) != -1){
+        setState({ ...state, error: 'Il y a un caractère non numerique dans le numéro de téléphone.' })
+      }
+      else {
+        await axios
+        .post("http://localhost:8080/api/signup",{ fullname, username, email, password, mobile, role })
 
-      const response = await axios.post('', { fullName, username, email, password, confirmPassword, mobile, role })
-      console.log(response.data)
-      history('/dashbord')
+      if(state.roles == "ROLE_USER") history("/user") 
+      else history("/admin");
+    
+      }
+                                
     }
-    catch (error) {
-      console.error('Signup failed:', error.response ? error.response.data : error.message);
-      setError(error.response ? error.response.data : error.message);
+    catch (err) {
+      setState({ ...state, error: "Le nom d'utilisateur ou l'adresse mail est déjà utilisé."})
     }
 
   }
@@ -49,7 +60,7 @@ const Signup = () => {
         <MDBNavbar>
           <MDBContainer className='m-2'>
             <Link to={"/"}>
-              BACK TO HOME
+              VERS L'ACCEUIL
             </Link>
           </MDBContainer>
         </MDBNavbar>
@@ -59,58 +70,40 @@ const Signup = () => {
         <div className="card p-4" style={{ width: "600px", height: "auto" }}>
           <MDBContainer className="p-3">
             {/* SIGN UP TITLE */}
-            <h2 className="text-center mb-4">Sign Up</h2>
+            <h2 className="text-center mb-4">Créer un compte</h2>
 
             {/* ERROR */}
             {state.error && <p className="text-danger text-center mb-4">{state.error}</p>}
 
             {/* FULLNAME */}
-            <MDBInput wrapperClass='mb-3' id='fullName' label='fullName' type='text' value={state.fullName}
-              onChange={(e) => {
-                console.log(e.target.id)
-                setState({ ...state, [e.target.id]: e.target.value })
-              }}>
+            <MDBInput wrapperClass='mb-3' id='fullname' label='Nom complet' type='text' value={state.fullname}
+              onChange={handleChange}>
             </MDBInput>
 
             {/* USERNAME */}
-            <MDBInput wrapperClass='mb-3' id='username' label='username' type='text' value={state.username}
-              onChange={(e) => {
-                console.log(e.target.id)
-                setState({ ...state, [e.target.id]: e.target.value })
-              }}>
+            <MDBInput wrapperClass='mb-3' id='username' label="Nom d'utilisateur" type='text' value={state.username}
+              onChange={handleChange}>
             </MDBInput>
 
             {/* EMAIL */}
-            <MDBInput wrapperClass='mb-3' id='email' label='email' type='text' value={state.email}
-              onChange={(e) => {
-                console.log(e.target.id)
-                setState({ ...state, [e.target.id]: e.target.value })
-              }}>
+            <MDBInput wrapperClass='mb-3' id='email' label="Adresse mail" type='text' value={state.email}
+              onChange={handleChange}>
             </MDBInput>
 
             {/* PASSWORD */}
-            <MDBInput wrapperClass='mb-3' id='password' label='password' type='password' value={state.password}
-              onChange={(e) => {
-                console.log(e.target.id)
-                setState({ ...state, [e.target.id]: e.target.value })
-              }}>
+            <MDBInput wrapperClass='mb-3' id='password' label='Mot de passe' type='password' value={state.password}
+              onChange={handleChange}>
             </MDBInput>
 
             {/* CONFIRM PASSWORD */}
-            <MDBInput wrapperClass='mb-3' id='confirmPassword' label='confirmPassword' type='password' value={state.confirmPassword}
-              onChange={(e) => {
-                console.log(e.target.id)
-                setState({ ...state, [e.target.id]: e.target.value })
-              }}>
+            <MDBInput wrapperClass='mb-3' id='confirmPassword' label='Confirmation du mot de passe' type='password' value={state.confirmPassword}
+              onChange={handleChange}>
             </MDBInput>
 
             {/* MOBILE */}
             <MDBInputGroup textBefore='+221'>
-              <MDBInput wrapperClass='mb-3' id='mobile' label='mobile' type='tel' value={state.mobile}
-                onChange={(e) => {
-                  console.log(e.target.id)
-                  setState({ ...state, [e.target.id]: e.target.value })
-                }}>
+              <MDBInput wrapperClass='mb-3' id='mobile' label='Téléphone' type='tel' value={state.mobile}
+                onChange={handleChange}>
               </MDBInput>
             </MDBInputGroup>
 
@@ -118,24 +111,21 @@ const Signup = () => {
             {/* ROLE */}
             <div className='flex'>
               <label>Role</label>
-              <select className="form-select mb-4" id='role' value={state.role}
-                onChange={(e) => {
-                  console.log(e.target.id)
-                  setState({ ...state, [e.target.id]: e.target.value })
-                }}>
-                <option value="ROLE_USER">User</option>
-                <option value="ROLE_ADMIN">Admin</option>
+              <select className="form-select mb-4" id='roles' value={state.roles}
+                onChange={handleChange}>
+                <option value="ROLE_USER">Utilisateur</option>
+                <option value="ROLE_ADMIN">Admininistrateur</option>
               </select>
             </div>
 
             {/* SUBMIT */}
             <MDBBtn className='mb-3'
               style={{ height: '40px', width: '100%' }}
-              onClick={handleSubmit}>Sign Up
+              onClick={handleSubmit}>Créer un compte
             </MDBBtn>
 
             <div className="text-center">
-              <p>Already Register? <a href="/login">Login</a></p>
+              <p>Déjà inscrit? <a href="/login">Connectez-vous ici</a></p>
             </div>
 
           </MDBContainer>

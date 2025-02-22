@@ -3,6 +3,8 @@ package com.elijah.loggin_project.repositories;
 import com.elijah.loggin_project.dtos.UserDTO;
 import com.elijah.loggin_project.entities.Role;
 import com.elijah.loggin_project.entities.User;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Size;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -21,4 +23,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByUsername(String username);
 
     List<User> findAllByRole(Role role);
+
+    Optional<User> findByEmail(@Email String email);
 }

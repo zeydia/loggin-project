@@ -12,7 +12,7 @@ const InfoView = () => {
         role: '',
         error: ''
     })
-    const history = useNavigate()
+    const history = useNavigate();
 
     const handleSubmit = () => null;
 

@@ -1,6 +1,7 @@
 package com.elijah.loggin_project.entities;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -45,8 +46,7 @@ public class User {
     private String email;
 
 
-    @JsonIgnore
-    @Column(name = "password", length = 50)
+    @Column(name = "password")
     private String password;
 
 
