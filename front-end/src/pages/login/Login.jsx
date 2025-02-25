@@ -22,11 +22,11 @@ const Login = () => {
       }
 
 
-      const response1 = await axios.post('http://localhost:8080/api/login', { username, password });
+      await axios.post('http://localhost:8080/api/login', { username, password });
       const response = await axios.get('http://localhost:8080/api/user');
       console.log(response)
       //console.log(response)
-      //history("/admin")
+      history("/admin")
 
     } catch (error) {
       console.error('Login failed:', error.response ? error.response.data : error.message);
@@ -42,7 +42,7 @@ const Login = () => {
       <MDBNavbar>
       <MDBContainer className='m-2'>
         <Link to={"/"}>
-          VERS L'ACCEUIL
+          VERS L&apos;ACCEUIL
         </Link>
       </MDBContainer>
     </MDBNavbar>
@@ -77,7 +77,7 @@ const Login = () => {
             </MDBBtn>
 
             <div className="text-center">
-              <p>Vous n'avez pas de compte? <Link to={"/signup"} >Créer un compte</Link></p>
+              <p>Vous n&apos;avez pas de compte? <Link to={"/signup"} >Créer un compte</Link></p>
             </div>
 
           </MDBContainer>

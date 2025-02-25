@@ -1,12 +1,18 @@
 package com.elijah.loggin_project.services;
 
+import com.elijah.loggin_project.config.security.sevices.JWTService;
 import com.elijah.loggin_project.config.security.sevices.UserDetailsImpl;
+import com.elijah.loggin_project.config.security.sevices.UserDetailsSeviceImpl;
 import com.elijah.loggin_project.entities.Role;
 import com.elijah.loggin_project.entities.User;
 import com.elijah.loggin_project.enumeration.ROLE;
 import com.elijah.loggin_project.repositories.RoleRepository;
 import com.elijah.loggin_project.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +27,12 @@ public class UserService {
     UserRepository userRepository;
     @Autowired
     private RoleRepository roleRepository;
+    @Autowired
+    private AuthenticationManager authenticationManager;
+    @Autowired
+    private UserDetailsSeviceImpl userDetailsSeviceImpl;
+    @Autowired
+    JWTService jwtService;
 
     public List<User> getAllUsers() {
         return userRepository.findAll();
@@ -98,6 +110,20 @@ public class UserService {
         User requestedUser = this.getUserByUsername(currentUser.getUsername());
         requestedUser.setPassword(encoder.encode(password));
 
+    }
+
+    public String verify(User user){
+        Authentication auth = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword())
+        );
+
+        if (auth.isAuthenticated()) {
+            return jwtService.generateToken(user.getUsername());
+        }
+        else {
+            System.out.println("Authentication Failed");
+            return "Wrong credentials";
+        }
     }
 
 

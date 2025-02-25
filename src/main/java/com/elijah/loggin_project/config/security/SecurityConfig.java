@@ -2,6 +2,7 @@ package com.elijah.loggin_project.config.security;
 
 import com.elijah.loggin_project.config.security.sevices.UserDetailsSeviceImpl;
 import jakarta.servlet.Servlet;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -25,6 +26,9 @@ import java.util.List;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    @Autowired
+    UserDetailsSeviceImpl userDetailsSeviceImpl;
+
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -42,7 +46,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    AuthenticationProvider authenticationProvider(UserDetailsSeviceImpl userDetailsSeviceImpl) {
+    AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setPasswordEncoder(new BCryptPasswordEncoder(12));
         provider.setUserDetailsService(userDetailsSeviceImpl);
