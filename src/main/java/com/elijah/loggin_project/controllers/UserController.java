@@ -29,34 +29,28 @@ public class UserController {
 
     @Autowired
     ModelMapper modelMapper;
-
     @Autowired
     UserService userService;
-
-    @Autowired
-    HttpSession session;
-
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<UserDTO> getUser(
             @AuthenticationPrincipal UserDetailsImpl userDetails
     ){
-        System.out.println("Get User session: "+session);
         System.out.println("User principal: "+ SecurityContextHolder.getContext().getAuthentication());
-//        List<String> roles = userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList();
-//        UserDTO userDTO = modelMapper.map(userDetails, UserDTO.class);
-//
-//        ROLE userRole = null;
-//        for(String role : roles){
-//            userRole = role.contains("ADMIN") ? ROLE.ROLE_ADMIN : ROLE.ROLE_USER;
-//        }
-//        userDTO.setRole(userRole);
-//
-//        System.out.println(userDTO);
-//
-//        return ResponseEntity.ok(userDTO);
-        return null;
+
+        List<String> roles = userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList();
+        UserDTO userDTO = modelMapper.map(userDetails, UserDTO.class);
+
+        ROLE userRole = null;
+        for(String role : roles){
+            userRole = role.contains("ADMIN") ? ROLE.ROLE_ADMIN : ROLE.ROLE_USER;
+        }
+        userDTO.setRole(userRole);
+
+        System.out.println(userDTO);
+
+        return ResponseEntity.ok(userDTO);
     }
 
     @PostMapping
@@ -83,13 +77,28 @@ public class UserController {
         userService.deleteUser(user);
     }
 
-    @PutMapping
+    @PostMapping("updateUser")
     @ResponseStatus(HttpStatus.CREATED)
-    public void updateUser(
+    public ResponseEntity<User> updateUser(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @RequestParam User user
     ){
-        userService.updateUser(user, userDetails);
+        System.out.println("Updating user");
+        User requestedUser = userService.getUserByUsername(user.getUsername());
+        if (requestedUser != null) {
+            return ResponseEntity.badRequest().body(null);
+        }
+        else {
+            return ResponseEntity.ok(userService.updateUser(user, userDetails));
+        }
     }
 
+    @PostMapping("renewPass")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public void updateUserPassword(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @RequestParam String newPassword
+    ){
+        userService.updateUserPassword(newPassword, userDetails);
+    }
 }

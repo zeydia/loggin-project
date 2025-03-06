@@ -2,8 +2,10 @@ import React from 'react'
 import { MDBContainer, MDBInput, MDBBtn, MDBNavbar } from 'mdb-react-ui-kit'
 import axios from 'axios'
 import { Link, useNavigate } from 'react-router-dom'
+import { setCookie } from '../../utils/Cookies'
 
 const Login = () => {
+  const api = import.meta.env.VITE_API;
 
   const [state, setState] = React.useState({
     username: '',
@@ -22,11 +24,9 @@ const Login = () => {
       }
 
 
-      await axios.post('http://localhost:8080/api/login', { username, password });
-      const response = await axios.get('http://localhost:8080/api/user');
-      console.log(response)
-      //console.log(response)
-      history("/admin")
+      const response = await axios.post(api+'/login', { username, password });
+      setCookie('LOGIN_INFO', response.data.token);
+      history("/")
 
     } catch (error) {
       console.error('Login failed:', error.response ? error.response.data : error.message);

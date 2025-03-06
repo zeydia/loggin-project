@@ -1,35 +1,44 @@
-import React from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Logout from '../../logout/Logout'
 import axios from 'axios'
+import { getCookie } from '../../../utils/Cookies'
 
 const Admin = () => {
+  const [username, setUsername] = useState();
+  const api = import.meta.env.VITE_API;
+  const token = getCookie('LOGIN_INFO');
 
-  const handleView = async () =>{
-    try {
-      const response = await axios.get('http://localhost:8080/api/user');
-      console.log(response.data);
-    } catch(error) {
-      console.error(error);
-    }
-  }
+  useEffect(() => {
+    axios.get(api + "/user", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((response) => {
+        setUsername(response.data.username);
+
+      })
+      .catch(error => console.log(error))
+  }, [])
+
 
   return (
     <div className="d-flex justify-content-center align-items-center">
-      <div className="border rounded-lg p-4" style={{ width: '500px', height: '400px' }}>
-        <h2 className="mb-4 text-center">Welcome to the Admin Dashboard</h2>
-        <p className="text-center">Hello, I am Elijah21!<br />
-          Welcome to my loggin website write in <span className="">Reactjs</span> and <span>Spring Boot</span>. </p>
-        <p className="text-center">You can view your informations or view all users</p>
+      <div className="border rounded-lg pt-4 mt-3" style={{ width: '700px', height: '500px' }}>
+      <h2 className="mt-5 mb-4 text-center">Bienvenue <span className="text-primary">{username}</span> sur le dashboard Admin</h2>
+        <p className="text-center">Bonjour, Je suis Elijah21!<br />
+          Bienvenue sur mon projet LOGGIN PROJECT site web fait avec <span className="text-primary">Reactjs</span> et <span className='text-success'>Spring Boot Spring Security</span>. </p>
+        <p className="text-center">Consultez vos informations ou deconnectez-vous</p>
         <div className="text-center">
           <Link to={"/admin/myInfos"}>
-            <button type="button" className="btn btn-primary m-3" onClick={handleView}>
-              My Informations
+            <button type="button" className="btn btn-primary m-3" >
+              Mes Informations
             </button>
           </Link>
-          <Link to={""} className="text-white text-decoration-none">
+          <Link to={"/admin/dashboard"} className="text-white text-decoration-none">
             <button type="button" className="btn btn-primary m-3" >
-              View All Users
+              Voir tous les utilisateurs
             </button>
           </Link>
         </div>

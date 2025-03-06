@@ -1,9 +1,12 @@
 import axios from 'axios'
 import { MDBBtn, MDBContainer, MDBInput, MDBInputGroup, MDBNavbar } from 'mdb-react-ui-kit'
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
+import { setCookie } from '../../utils/Cookies'
 
 const Signup = () => {
+  const api = import.meta.env.VITE_API;
+
 
   const [state, setState] = useState({
     fullname: '',
@@ -30,6 +33,9 @@ const Signup = () => {
       if (fullname == '' || username == '' || email == '' || password == '' || confirmPassword == '' || mobile == '' || role == '') {
         setState({ ...state, error: 'Veuillez remplir tous les champs' })
       }
+      else if (!email.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/g)){
+        setState({ ...state, error: "Le format de l'adresse mail n'est pas correct." })
+      }
       else if (password !== confirmPassword) {
         setState({ ...state, error: "La confirmation de mot de passe n'est pas correcte." })
       }
@@ -37,16 +43,17 @@ const Signup = () => {
         setState({ ...state, error: 'Il y a un caractère non numerique dans le numéro de téléphone.' })
       }
       else {
-        await axios
-        .post("http://localhost:8080/api/signup",{ fullname, username, email, password, mobile, role })
+        const response = await axios
+        .post(api+"/signup",{ fullname, username, email, password, mobile, role })
 
-      if(state.roles == "ROLE_USER") history("/user") 
-      else history("/admin");
-    
+        console.log(response);
+        setCookie('LOGIN_INFO',response.data.token);
+        history("/")
       }
                                 
     }
-    catch (err) {
+    catch (error) {
+      console.error(error);
       setState({ ...state, error: "Le nom d'utilisateur ou l'adresse mail est déjà utilisé."})
     }
 
@@ -60,7 +67,7 @@ const Signup = () => {
         <MDBNavbar>
           <MDBContainer className='m-2'>
             <Link to={"/"}>
-              VERS L'ACCEUIL
+              VERS L&apos;ACCEUIL
             </Link>
           </MDBContainer>
         </MDBNavbar>

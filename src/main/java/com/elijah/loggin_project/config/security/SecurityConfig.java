@@ -1,5 +1,6 @@
 package com.elijah.loggin_project.config.security;
 
+import com.elijah.loggin_project.config.security.filters.JWTFilter;
 import com.elijah.loggin_project.config.security.sevices.UserDetailsSeviceImpl;
 import jakarta.servlet.Servlet;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +15,9 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -29,16 +32,21 @@ public class SecurityConfig {
     @Autowired
     UserDetailsSeviceImpl userDetailsSeviceImpl;
 
+    @Autowired
+    JWTFilter jwtFilter;
+
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
             http
                     .authorizeHttpRequests(requests -> requests
                             .requestMatchers("/login","/signup").permitAll()
+                            .requestMatchers("/admin").hasRole("ADMIN")
                             .anyRequest().authenticated())
                     .sessionManagement(manager-> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                     .csrf(AbstractHttpConfigurer::disable)
                     .cors(cors->cors.configurationSource(corsConfigurationSource()))
+                    .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
             ;
 
 
@@ -46,9 +54,14 @@ public class SecurityConfig {
     }
 
     @Bean
+    PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder(12);
+    }
+
+    @Bean
     AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setPasswordEncoder(new BCryptPasswordEncoder(12));
+        provider.setPasswordEncoder(passwordEncoder());
         provider.setUserDetailsService(userDetailsSeviceImpl);
         return provider;
     }

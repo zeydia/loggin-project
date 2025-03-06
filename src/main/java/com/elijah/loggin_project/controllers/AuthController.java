@@ -1,10 +1,12 @@
 package com.elijah.loggin_project.controllers;
 
 
+import com.elijah.loggin_project.config.security.auth.AuthResponse;
 import com.elijah.loggin_project.config.security.sevices.UserDetailsSeviceImpl;
 import com.elijah.loggin_project.entities.User;
 import com.elijah.loggin_project.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -17,51 +19,43 @@ public class AuthController {
     @Autowired
     UserService userService;
 
-    @Autowired
-    UserDetailsSeviceImpl userDetailsServiceImpl;
-
-    @Autowired
-    private AuthenticationManager authenticationManager;
-
-
     @PostMapping("login")
-    public void login(
+    public ResponseEntity<AuthResponse> login(
             @RequestBody User user
     ) {
         System.out.println("Request body: "+user);
         System.out.println("Login processing...");
 
-//        if (userDetailsServiceImpl.verifyCredentials(user)) {
-//            Authentication authentication = authenticationManager.authenticate(
-//                    new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword())
-//            );
+        String token = userService.authenticateUser(user);
+        System.out.println("token: "+token);
 
-            String token = userService.verify(user);
-            System.out.println(token);
+        AuthResponse authResponse = new AuthResponse();
+        authResponse.setToken(token);
+        authResponse.setMessage("Login Successful.");
 
-       // }
 
         System.out.println("Authentication Success, session saved...");
-        return;
+        return ResponseEntity.ok(authResponse);
     }
 
     @PostMapping("signup")
-    public void signup(
+    public ResponseEntity<AuthResponse> signup(
             @RequestBody User user
     ) {
         System.out.println(user);
         System.out.println("Signup...");
 
         User createdUser = userService.createUser(user);
+
+        String token = userService.authenticateUser(user);
+        AuthResponse authResponse = new AuthResponse();
+        authResponse.setToken(token);
+        authResponse.setMessage("Signup Successful.");
+
         System.out.println("User registered successfully: "+createdUser);
 
-        return ;
+        return ResponseEntity.ok(authResponse);
     }
 
-    @GetMapping("logout")
-    public String logout() {
-        System.out.println("logout...");
-        return "logout...";
-    }
 
 }

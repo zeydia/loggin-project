@@ -1,27 +1,19 @@
-import React from 'react'
 import { MDBBtn } from 'mdb-react-ui-kit'
-import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
+import { removeCookie } from '../../utils/Cookies'
 
 const Logout = () => {
 
     const history = useNavigate();
 
     const handleLogout = async () => {
-        try {
-            axios.get("http://localhost:8080/logout")
-                .then(
-                    history("/login")
-                )
-        } catch (error) {
-            
-        }
-
+            removeCookie('LOGIN_INFO')
+            history("/")
     }
 
     return (
         <div>
-            <MDBBtn className='bg-danger' onClick={handleLogout}>Logout</MDBBtn>
+            <MDBBtn className='bg-danger' onClick={handleLogout}>Deconnexion</MDBBtn>
 
         </div>
     )

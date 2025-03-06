@@ -13,15 +13,19 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class UserService {
 
-    BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
+    @Autowired
+    PasswordEncoder encoder;
 
     @Autowired
     UserRepository userRepository;
@@ -81,7 +85,7 @@ public class UserService {
         userRepository.delete(user);
     }
 
-    public void updateUser(User Updateduser, UserDetailsImpl currentUser) {
+    public User updateUser(User Updateduser, UserDetailsImpl currentUser) {
         String username = Updateduser.getUsername();
         String email = Updateduser.getEmail();
         String fullname = Updateduser.getFullname();
@@ -91,31 +95,43 @@ public class UserService {
 
         if (!requestedUser.getFullname().equals(fullname)) {
             requestedUser.setFullname(fullname);
+            System.out.println("Fullname updated");
         }
         else if (!requestedUser.getUsername().equals(username)) {
             requestedUser.setUsername(username);
+            System.out.println("Username updated");
         }
         else if (!requestedUser.getEmail().equals(email)) {
             requestedUser.setEmail(email);
+            System.out.println("Email updated");
         }
         else if (!requestedUser.getMobile().equals(mobile)) {
             requestedUser.setMobile(mobile);
+            System.out.println("Mobile updated");
         }
+
+        return requestedUser;
     }
 
-    public void updateUserPassword(User Updateduser, UserDetailsImpl currentUser) {
-        String username = Updateduser.getUsername();
-        String password = Updateduser.getPassword();
 
+    public void updateUserPassword(String newPassword, UserDetailsImpl currentUser) {
         User requestedUser = this.getUserByUsername(currentUser.getUsername());
-        requestedUser.setPassword(encoder.encode(password));
-
+        requestedUser.setPassword(encoder.encode(newPassword));
     }
 
-    public String verify(User user){
+    public String authenticateUser(User user){
+
+        String login = null;
+        if(user.getUsername().contains("@")){
+             login = Objects.requireNonNull(userRepository.findByEmail(user.getUsername()).orElse(null)).getUsername();
+        }
+        else{
+            login = user.getUsername();
+        }
+
         Authentication auth = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword())
-        );
+                new UsernamePasswordAuthenticationToken(login, user.getPassword()));
+        SecurityContextHolder.getContext().setAuthentication(auth);
 
         if (auth.isAuthenticated()) {
             return jwtService.generateToken(user.getUsername());

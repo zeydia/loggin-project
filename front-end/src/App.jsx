@@ -11,25 +11,30 @@ import UsersView from './pages/dashboard/Admin/UsersView'
 import Layout from './pages/dashboard/Layout'
 
 function App() {
-  const [count, setCount] = useState(0)
+
 
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/home" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
 
         
-          <Route path="/admin" element={<Layout/>}>
+        <Route path="/" element={<Layout />}>
+          <Route path="admin">
             <Route index element={<Admin />} />
             <Route path="myInfos" element={<MyInfosAdmin />} />
             <Route path="dashboard" element={<UsersView />} />
           </Route>
-          <Route path="/user" element={<Layout />}>
-            <Route index element={<User />}/>
-            <Route path="myInfos" element={<MyInfosUser/>}/>
+          <Route path="user">
+            <Route index element={<User />} />
+            <Route path="myInfos" element={<MyInfosUser />} />
           </Route>
+        </Route>
+
+        <Route path="*" element={<Home />} />
+
 
       </Routes>
     </BrowserRouter>

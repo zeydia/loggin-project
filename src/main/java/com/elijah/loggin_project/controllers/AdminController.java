@@ -16,6 +16,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -27,37 +28,57 @@ public class AdminController {
     @Autowired
     RoleService roleService;
 
-    @Autowired
-    ModelMapper modelMapper;
-
     @GetMapping("users")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public ResponseEntity<List<User>> getAllUsersByRole(
+    public ResponseEntity<List<UserDTO>> getAllUsersByRole(
             @RequestParam(value = "role", required = false) String role
     ){
+
+        List<User> users = null;
+
         if(role != null){
             ROLE roleEnum = role.toUpperCase().contains("ADMIN") ? ROLE.ROLE_ADMIN : ROLE.ROLE_USER;
             Role roleObj = roleService.getRoleByName(roleEnum);
-
-            return ResponseEntity.ok(userService.getUsersByRole(roleObj));
+            users = userService.getUsersByRole(roleObj);
+        }
+        else {
+            users = userService.getAllUsers();
         }
 
-        return ResponseEntity.ok(userService.getAllUsers());
+        List<UserDTO> usersResponse = new ArrayList<>();
+        for (User user: users) {
+            UserDTO userDTO = new UserDTO();
+            userDTO.setUserId(user.getUserId());
+            userDTO.setUsername(user.getUsername());
+            userDTO.setFullname(user.getFullname());
+            userDTO.setMobile(user.getMobile());
+            userDTO.setEmail(user.getEmail());
+            userDTO.setRole(user.getRole().getRoleName());
+
+            usersResponse.add(userDTO);
+        }
+
+        return ResponseEntity.ok(usersResponse);
     }
 
-    @GetMapping("{id}")
+    @GetMapping("user/{id}")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public ResponseEntity<User> getUserById(@PathVariable Long id){
+    public ResponseEntity<UserDTO> getUserById(@PathVariable Long id){
         User user = userService.getUserById(id);
-        String role = user.getRole().getRoleName().toString();
-        //System.out.println(user.getRole().getRoleName().toString());
 
-        return ResponseEntity.ok(user);
+        UserDTO userDTO = new UserDTO();
+        userDTO.setUsername(user.getUsername());
+        userDTO.setFullname(user.getFullname());
+        userDTO.setMobile(user.getMobile());
+        userDTO.setEmail(user.getEmail());
+        userDTO.setRole(user.getRole().getRoleName());
+
+        return ResponseEntity.ok(userDTO);
     }
 
-    @DeleteMapping
+    @DeleteMapping("user")
     public void deleteUserById(
             @RequestParam(value = "id", required = false) Long id
     ){
